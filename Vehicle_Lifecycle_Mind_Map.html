@@ -53,27 +53,6 @@
             letter-spacing: -0.5px;
         }
 
-        .upload-btn {
-            background: linear-gradient(to left, var(--primary), var(--secondary));
-            color: white;
-            padding: 10px 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-            border: none;
-        }
-
-        .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
-        }
-
-        input[type="file"] {
-            display: none;
-        }
 
         /* מבנה מרכזי */
         .main-wrapper {
@@ -224,16 +203,14 @@
 
     <div class="header">
         <h1>מחזור חיי רכב בישראל</h1>
-        <label for="csvFile" class="upload-btn">העלה נתונים (CSV)</label>
-        <input type="file" id="csvFile" accept=".csv">
     </div>
 
     <div class="main-wrapper">
         <div id="chart-area">
             <div id="empty-state">
-                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color: #94a3b8; margin-bottom: 15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <h2 style="font-weight: 300; margin: 10px 0;">ממתין לקובץ...</h2>
-                <p style="font-size: 1.1rem; opacity: 0.7;">העלה את הקובץ כדי לבנות את התרשים</p>
+                <div style="color: #94a3b8; margin-bottom: 15px; font-size: 3rem;">⏳</div>
+                <h2 style="font-weight: 300; margin: 10px 0;">טוען נתונים...</h2>
+                <p style="font-size: 1.1rem; opacity: 0.7;">אנא המתן בזמן שהנתונים נטענים מהמאגר</p>
             </div>
         </div>
 
@@ -293,20 +270,38 @@
             }
         }
 
-        document.getElementById('csvFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // טוען את קובץ ה-CSV אוטומטית מהמאגר בגיט
+        const CSV_URL = 'https://raw.githubusercontent.com/shalevyair/Vehicle-Lifecycle-Mind-Map/main/Vehicle_Lifecycle.csv';
 
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    const treeData = buildTreeData(results.data);
-                    document.getElementById('empty-state').style.display = 'none';
-                    initChart(treeData);
-                }
-            });
-        });
+        function loadCSVFromGit() {
+            fetch(CSV_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch CSV');
+                    return response.text();
+                })
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            const treeData = buildTreeData(results.data);
+                            document.getElementById('empty-state').style.display = 'none';
+                            initChart(treeData);
+                        }
+                    });
+                })
+                .catch(error => {
+                    const emptyState = document.getElementById('empty-state');
+                    emptyState.innerHTML = `
+                        <div style="color: #ef4444; margin-bottom: 15px; font-size: 3rem;">⚠</div>
+                        <h2 style="font-weight: 300; margin: 10px 0;">שגיאה בטעינת הנתונים</h2>
+                        <p style="font-size: 1.1rem; opacity: 0.7;">${error.message}</p>
+                    `;
+                });
+        }
+
+        // טוען אוטומטית בעת פתיחת הדף
+        document.addEventListener('DOMContentLoaded', loadCSVFromGit);
 
         function buildTreeData(data) {
             let root = {
