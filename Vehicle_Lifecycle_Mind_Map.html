@@ -257,16 +257,52 @@
     <script>
         let myChart = null;
 
-        // פונקציה לשינוי גודל הטקסט (זום)
+        // פונקציה לשינוי גודל הטקסט (זום) - משפיעה גם על הפאנל וגם על המפה
+        let fontScale = 1;
+        const BASE_FONT_SIZES = { root: 18, stage: 15, subStage: 14, subSubStage: 13 };
+
         function changeFontSize(step) {
             const root = document.documentElement;
             // קריאת הגודל הנוכחי
             let currentSize = parseInt(getComputedStyle(root).getPropertyValue('--base-font-size'));
-            
+
             // שינוי הגודל עם גבולות (לא קטן מדי ולא ענק מדי)
             let newSize = currentSize + (step * 2);
             if (newSize >= 14 && newSize <= 28) {
                 root.style.setProperty('--base-font-size', newSize + 'px');
+                fontScale = newSize / 16;
+                updateChartFontSizes();
+            }
+        }
+
+        function updateChartFontSizes() {
+            if (!myChart) return;
+            const option = myChart.getOption();
+            if (!option || !option.series || !option.series[0]) return;
+
+            function updateNodeFonts(node) {
+                if (!node) return;
+                if (node.label) {
+                    // זיהוי סוג הצומת לפי הגודל המקורי
+                    if (node.label.fontWeight === '800') {
+                        node.label.fontSize = Math.round(BASE_FONT_SIZES.root * fontScale);
+                    } else if (node.label.fontWeight === '700') {
+                        node.label.fontSize = Math.round(BASE_FONT_SIZES.stage * fontScale);
+                    } else if (node.label.fontWeight === '500') {
+                        node.label.fontSize = Math.round(BASE_FONT_SIZES.subStage * fontScale);
+                    } else {
+                        node.label.fontSize = Math.round(BASE_FONT_SIZES.subSubStage * fontScale);
+                    }
+                }
+                if (node.children) {
+                    node.children.forEach(updateNodeFonts);
+                }
+            }
+
+            const seriesData = option.series[0].data;
+            if (seriesData && seriesData[0]) {
+                updateNodeFonts(seriesData[0]);
+                myChart.setOption({ series: [{ data: seriesData }] });
             }
         }
 
