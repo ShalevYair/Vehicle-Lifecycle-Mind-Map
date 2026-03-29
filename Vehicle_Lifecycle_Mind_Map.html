@@ -9,6 +9,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
     <style>
         :root {
+            --primary: #60a5fa;
+            --primary-dark: #93bbfd;
+            --secondary: #38bdf8;
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --text-main: #e2e8f0;
+            --text-sub: #94a3b8;
+            --border-light: #334155;
+            --header-bg: rgba(30, 41, 59, 0.95);
+            --node-bg: #1e293b;
+            --node-shadow: rgba(0,0,0,0.3);
+            --line-color: #475569;
+            --base-font-size: 16px;
+        }
+
+        body.light-mode {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --secondary: #0ea5e9;
@@ -17,14 +33,17 @@
             --text-main: #0f172a;
             --text-sub: #475569;
             --border-light: #e2e8f0;
-            --base-font-size: 16px; /* משתנה דינאמי לגודל הכתב */
+            --header-bg: rgba(255, 255, 255, 0.9);
+            --node-bg: #fff;
+            --node-shadow: rgba(0,0,0,0.08);
+            --line-color: #cbd5e1;
         }
 
         body {
             font-family: 'Heebo', sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            background: var(--bg-color);
             color: var(--text-main);
             height: 100vh;
             display: flex;
@@ -35,14 +54,15 @@
         /* כותרת עליונה - Header */
         .header {
             padding: 15px 40px;
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--header-bg);
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.3s, border-color 0.3s;
         }
 
         h1 {
@@ -73,6 +93,7 @@
             overflow: hidden;
             position: relative;
             border: 1px solid var(--border-light);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         /* פאנל מידע צדדי */
@@ -89,23 +110,28 @@
             flex-direction: column;
             border: 1px solid var(--border-light);
             position: relative;
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
-        /* כפתורי זום לטקסט */
+        /* כפתורי הדר - זום + דארק מוד */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .zoom-controls {
-            position: absolute;
-            top: 25px;
-            left: 25px;
             display: flex;
             gap: 5px;
-            background: #f1f5f9;
+            background: var(--panel-bg);
             padding: 4px;
             border-radius: 50px;
             border: 1px solid var(--border-light);
+            transition: background 0.3s, border-color 0.3s;
         }
 
-        .zoom-btn {
-            background: white;
+        .ctrl-btn {
+            background: var(--bg-color);
             border: none;
             width: 28px;
             height: 28px;
@@ -117,11 +143,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.2s;
         }
 
-        .zoom-btn:hover {
+        .ctrl-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dark-mode-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .dark-mode-btn:hover {
             background: var(--primary);
             color: white;
         }
@@ -133,8 +179,7 @@
             color: var(--primary-dark);
             font-weight: 800;
             padding-bottom: 15px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-left: 80px; /* מקום לכפתורי הזום */
+            border-bottom: 2px solid var(--border-light);
         }
 
         .info-section {
@@ -166,14 +211,20 @@
         }
 
         .actor-tag {
-            background: linear-gradient(135deg, #eff6ff, #e0f2fe);
-            color: #0369a1;
+            background: var(--border-light);
+            color: var(--secondary);
             padding: 6px 14px;
             border-radius: 50px;
             font-size: calc(var(--base-font-size) - 3px);
             font-weight: 600;
-            border: 1px solid #bae6fd;
-            transition: font-size 0.3s ease;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .actor-tag {
+            background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+            color: #0369a1;
+            border-color: #bae6fd;
         }
 
         /* עיצוב מצב ריק (Empty State) */
@@ -192,6 +243,11 @@
         #info-panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         #info-panel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        /* מעבר חלק */
+        body {
+            transition: background 0.3s;
+        }
+
         /* פסקאות סיכום הפתיחה */
         .summary-paragraph {
             margin-bottom: 16px;
@@ -203,6 +259,13 @@
 
     <div class="header">
         <h1>מחזור חיי רכב בישראל</h1>
+        <div class="header-controls">
+            <div class="zoom-controls">
+                <button class="ctrl-btn" onclick="changeFontSize(1)" title="הגדל טקסט">+</button>
+                <button class="ctrl-btn" onclick="changeFontSize(-1)" title="הקטן טקסט">-</button>
+            </div>
+            <button class="dark-mode-btn" onclick="toggleDarkMode()" id="dark-mode-btn" title="מצב בהיר/כהה">&#9788;</button>
+        </div>
     </div>
 
     <div class="main-wrapper">
@@ -215,11 +278,6 @@
         </div>
 
         <div id="info-panel">
-            <div class="zoom-controls">
-                <button class="zoom-btn" onclick="changeFontSize(1)" title="הגדל טקסט">+</button>
-                <button class="zoom-btn" onclick="changeFontSize(-1)" title="הקטן טקסט">-</button>
-            </div>
-
             <div id="info-default">
                 <h2 class="panel-title">מבט על</h2>
                 <div class="dynamic-text">
@@ -306,6 +364,61 @@
             }
         }
 
+        // מצב כהה/בהיר
+        function toggleDarkMode() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('dark-mode-btn').innerHTML = isLight ? '&#9790;' : '&#9788;';
+            updateChartTheme();
+        }
+
+        function updateChartTheme() {
+            if (!myChart) return;
+            const isLight = document.body.classList.contains('light-mode');
+            const nodeBg = isLight ? '#fff' : '#1e293b';
+            const nodeShadow = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.3)';
+            const lineColor = isLight ? '#cbd5e1' : '#475569';
+            const tooltipBg = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(30,41,59,0.95)';
+            const tooltipText = isLight ? '#0f172a' : '#e2e8f0';
+            const tooltipBorder = isLight ? '#e2e8f0' : '#475569';
+
+            myChart.setOption({
+                tooltip: {
+                    backgroundColor: tooltipBg,
+                    textStyle: { color: tooltipText },
+                    borderColor: tooltipBorder
+                },
+                series: [{
+                    label: {
+                        backgroundColor: nodeBg,
+                        shadowColor: nodeShadow
+                    },
+                    lineStyle: { color: lineColor }
+                }]
+            });
+
+            // עדכון צבע טקסט של צמתים
+            const option = myChart.getOption();
+            const seriesData = option.series[0].data;
+            if (seriesData && seriesData[0]) {
+                updateNodeColors(seriesData[0], isLight);
+                myChart.setOption({ series: [{ data: seriesData }] });
+            }
+        }
+
+        function updateNodeColors(node, isLight) {
+            if (!node) return;
+            if (node.label && (node.label.color === '#475569' || node.label.color === '#94a3b8')) {
+                node.label.color = isLight ? '#475569' : '#94a3b8';
+            }
+            if (node.itemStyle) {
+                if (node.itemStyle.color === '#0f172a' || node.itemStyle.color === '#e2e8f0') {
+                    node.itemStyle.color = isLight ? '#0f172a' : '#e2e8f0';
+                }
+            }
+            if (node.children) node.children.forEach(c => updateNodeColors(c, isLight));
+        }
+
         // טוען את קובץ ה-CSV אוטומטית מהמאגר בגיט
         const CSV_URL = 'https://raw.githubusercontent.com/shalevyair/Vehicle-Lifecycle-Mind-Map/main/Vehicle_Lifecycle.csv';
 
@@ -344,7 +457,7 @@
                 name: "מחזור חיי רכב",
                 children: [],
                 symbolSize: 22,
-                itemStyle: { color: '#0f172a' },
+                itemStyle: { color: '#e2e8f0' },
                 label: { fontSize: 18, fontWeight: '800' }
             };
 
@@ -384,7 +497,7 @@
                 else if (type === 'SubSubStage') {
                     node.symbolSize = 8;
                     node.itemStyle = { color: '#94a3b8' };
-                    node.label = { fontSize: 13, color: '#475569' };
+                    node.label = { fontSize: 13, color: '#94a3b8' };
                     if (currentSubStage) {
                         currentSubStage.children.push(node);
                     } else if (currentStage) {
@@ -406,9 +519,9 @@
                     trigger: 'item',
                     triggerOn: 'mousemove',
                     formatter: '{b}',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    textStyle: { color: '#0f172a', fontFamily: 'Heebo' },
-                    borderColor: '#e2e8f0',
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    textStyle: { color: '#e2e8f0', fontFamily: 'Heebo' },
+                    borderColor: '#475569',
                     borderWidth: 1,
                     padding: [8, 12]
                 },
@@ -427,9 +540,9 @@
                         align: 'right',
                         fontFamily: 'Heebo',
                         padding: [5, 10],
-                        backgroundColor: '#fff',
+                        backgroundColor: '#1e293b',
                         borderRadius: 6,
-                        shadowColor: 'rgba(0,0,0,0.08)',
+                        shadowColor: 'rgba(0,0,0,0.3)',
                         shadowBlur: 5,
                         shadowOffsetY: 2
                     },
@@ -441,7 +554,7 @@
                         }
                     },
                     lineStyle: {
-                        color: '#cbd5e1',
+                        color: '#475569',
                         width: 2,
                         curveness: 0.6
                     },
