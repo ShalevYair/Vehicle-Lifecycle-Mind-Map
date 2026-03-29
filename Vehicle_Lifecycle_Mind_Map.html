@@ -406,14 +406,35 @@
             }
         }
 
+        // מיפוי צבעים: dark ↔ light לכל סוג צומת
+        const COLOR_MAP = {
+            label: {
+                '#e2e8f0': '#0f172a', // root
+                '#93bbfd': '#1d4ed8', // stage
+                '#7dd3fc': '#0369a1', // substage
+                '#94a3b8': '#475569'  // subsubstage
+            },
+            itemStyle: {
+                '#e2e8f0': '#0f172a'  // root
+            }
+        };
+
         function updateNodeColors(node, isLight) {
             if (!node) return;
-            if (node.label && (node.label.color === '#475569' || node.label.color === '#94a3b8')) {
-                node.label.color = isLight ? '#475569' : '#94a3b8';
+            if (node.label && node.label.color) {
+                for (const [dark, light] of Object.entries(COLOR_MAP.label)) {
+                    if (node.label.color === dark || node.label.color === light) {
+                        node.label.color = isLight ? light : dark;
+                        break;
+                    }
+                }
             }
             if (node.itemStyle) {
-                if (node.itemStyle.color === '#0f172a' || node.itemStyle.color === '#e2e8f0') {
-                    node.itemStyle.color = isLight ? '#0f172a' : '#e2e8f0';
+                for (const [dark, light] of Object.entries(COLOR_MAP.itemStyle)) {
+                    if (node.itemStyle.color === dark || node.itemStyle.color === light) {
+                        node.itemStyle.color = isLight ? light : dark;
+                        break;
+                    }
                 }
             }
             if (node.children) node.children.forEach(c => updateNodeColors(c, isLight));
@@ -458,7 +479,7 @@
                 children: [],
                 symbolSize: 22,
                 itemStyle: { color: '#e2e8f0' },
-                label: { fontSize: 18, fontWeight: '800' }
+                label: { fontSize: 18, fontWeight: '800', color: '#e2e8f0' }
             };
 
             let currentStage = null;
@@ -478,7 +499,7 @@
                 if (type === 'Stage') {
                     node.symbolSize = 16;
                     node.itemStyle = { color: '#2563eb' };
-                    node.label = { fontWeight: '700', fontSize: 15 };
+                    node.label = { fontWeight: '700', fontSize: 15, color: '#93bbfd' };
                     root.children.push(node);
                     currentStage = node;
                     currentSubStage = null;
@@ -486,7 +507,7 @@
                 else if (type === 'SubStage') {
                     node.symbolSize = 12;
                     node.itemStyle = { color: '#0ea5e9' };
-                    node.label = { fontWeight: '500', fontSize: 14 };
+                    node.label = { fontWeight: '500', fontSize: 14, color: '#7dd3fc' };
                     if (currentStage) {
                         currentStage.children.push(node);
                         currentSubStage = node;
