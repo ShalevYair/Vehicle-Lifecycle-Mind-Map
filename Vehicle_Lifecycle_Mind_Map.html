@@ -256,13 +256,36 @@
             border-radius: 50px;
             font-size: calc(var(--base-font-size) - 3px);
             font-weight: 700;
-            color: #fff;
             transition: font-size 0.3s ease;
         }
 
-        .metric-red { background: #ef4444; }
-        .metric-orange { background: #f59e0b; }
-        .metric-green { background: #22c55e; }
+        .metric-red { background: #f87171; }
+        .metric-orange { background: #fbbf24; color: #78350f; }
+        .metric-green { background: #6ee7b7; color: #064e3b; }
+
+        .arava-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .priority-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 7px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .priority-red { background: #f87171; }
+        .priority-orange { background: #fbbf24; color: #78350f; }
+        .priority-yellow { background: #fde68a; color: #713f12; }
+        .priority-none { background: var(--border-light); color: var(--text-sub); }
 
         .arava-label {
             cursor: pointer;
@@ -340,8 +363,11 @@
                 </div>
 
                 <div id="arava-section" class="info-section" style="display: none;">
-                    <div class="info-label arava-label" id="arava-link-wrapper">ערבה</div>
-                    <div id="arava-metrics" class="metrics-row"></div>
+                    <div class="arava-header-row">
+                        <div class="info-label arava-label" id="arava-link-wrapper" style="margin-bottom: 0;">ערבה</div>
+                        <span id="arava-priority" class="priority-tag" style="display: none;"></span>
+                    </div>
+                    <div id="arava-metrics" class="metrics-row" style="margin-top: 8px;"></div>
                     <div id="arava-desc" class="dynamic-text"></div>
                 </div>
             </div>
@@ -529,6 +555,7 @@
                     name: row.Title || 'ללא שם',
                     content: row.Content || '',
                     actors: row.Actors || '',
+                    tadof: row['תעדוף'] || '',
                     erech: row['ערך'] || '',
                     murkavut: row['מורכבות'] || '',
                     keev: row['כאב'] || '',
@@ -559,7 +586,28 @@
                 else if (type === 'SubSubStage') {
                     node.symbolSize = 8;
                     node.itemStyle = { color: '#94a3b8' };
-                    node.label = { fontSize: 13, color: '#94a3b8' };
+                    const pri = parseInt(node.tadof) || 0;
+                    if (pri >= 1 && pri <= 6) {
+                        const priColor = pri <= 2 ? '#f87171' : pri <= 4 ? '#fbbf24' : '#fde68a';
+                        const priText = pri <= 2 ? '#fff' : '#713f12';
+                        node.name = '{pri|' + pri + '} ' + node.name;
+                        node.label = {
+                            fontSize: 13, color: '#94a3b8',
+                            rich: {
+                                pri: {
+                                    backgroundColor: priColor,
+                                    color: priText,
+                                    borderRadius: 10,
+                                    padding: [2, 5, 2, 5],
+                                    fontSize: 10,
+                                    fontWeight: 'bold',
+                                    fontFamily: 'Heebo'
+                                }
+                            }
+                        };
+                    } else {
+                        node.label = { fontSize: 13, color: '#94a3b8' };
+                    }
                     if (currentSubStage) {
                         currentSubStage.children.push(node);
                     } else if (currentStage) {
@@ -690,6 +738,20 @@
                 } else {
                     aravaLabel.textContent = 'ערבה';
                     aravaLabel.style.cursor = 'default';
+                }
+
+                // תעדוף
+                const priorityTag = document.getElementById('arava-priority');
+                const pri = parseInt(d.tadof) || 0;
+                if (pri > 0) {
+                    priorityTag.style.display = 'inline-flex';
+                    priorityTag.textContent = pri;
+                    if (pri <= 2) priorityTag.className = 'priority-tag priority-red';
+                    else if (pri <= 4) priorityTag.className = 'priority-tag priority-orange';
+                    else if (pri <= 6) priorityTag.className = 'priority-tag priority-yellow';
+                    else priorityTag.className = 'priority-tag priority-none';
+                } else {
+                    priorityTag.style.display = 'none';
                 }
 
                 // מדדים
