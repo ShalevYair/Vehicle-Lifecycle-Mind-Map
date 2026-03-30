@@ -586,28 +586,7 @@
                 else if (type === 'SubSubStage') {
                     node.symbolSize = 8;
                     node.itemStyle = { color: '#94a3b8' };
-                    const pri = parseInt(node.tadof) || 0;
-                    if (pri >= 1 && pri <= 6) {
-                        const priColor = pri <= 2 ? '#f87171' : pri <= 4 ? '#fbbf24' : '#fde68a';
-                        const priText = pri <= 2 ? '#fff' : '#713f12';
-                        node.name = '{pri|' + pri + '} ' + node.name;
-                        node.label = {
-                            fontSize: 13, color: '#94a3b8',
-                            rich: {
-                                pri: {
-                                    backgroundColor: priColor,
-                                    color: priText,
-                                    borderRadius: 10,
-                                    padding: [2, 5, 2, 5],
-                                    fontSize: 10,
-                                    fontWeight: 'bold',
-                                    fontFamily: 'Heebo'
-                                }
-                            }
-                        };
-                    } else {
-                        node.label = { fontSize: 13, color: '#94a3b8' };
-                    }
+                    node.label = { fontSize: 13, color: '#94a3b8' };
                     if (currentSubStage) {
                         currentSubStage.children.push(node);
                     } else if (currentStage) {
