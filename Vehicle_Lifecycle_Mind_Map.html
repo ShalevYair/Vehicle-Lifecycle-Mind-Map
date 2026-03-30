@@ -564,49 +564,33 @@
                     children: []
                 };
 
+                const pri = parseInt(node.tadof) || 0;
+                const priBg = pri >= 1 && pri <= 2 ? '#7f1d1d' : pri >= 3 && pri <= 4 ? '#78350f' : pri >= 5 && pri <= 6 ? '#713f12' : null;
+                const priTextColor = pri >= 1 && pri <= 2 ? '#fca5a5' : pri >= 3 && pri <= 4 ? '#fcd34d' : pri >= 5 && pri <= 6 ? '#fde68a' : null;
+
                 if (type === 'Stage') {
                     node.symbolSize = 16;
                     node.itemStyle = { color: '#2563eb' };
-                    node.label = { fontWeight: '700', fontSize: 15, color: '#93bbfd' };
+                    node.label = { fontWeight: '700', fontSize: 15, color: priTextColor || '#93bbfd', backgroundColor: priBg || 'transparent', borderRadius: 4, padding: [4, 8, 4, 8] };
                     root.children.push(node);
                     currentStage = node;
                     currentSubStage = null;
-                } 
+                }
                 else if (type === 'SubStage') {
                     node.symbolSize = 12;
                     node.itemStyle = { color: '#0ea5e9' };
-                    node.label = { fontWeight: '500', fontSize: 14, color: '#7dd3fc' };
+                    node.label = { fontWeight: '500', fontSize: 14, color: priTextColor || '#7dd3fc', backgroundColor: priBg || 'transparent', borderRadius: 4, padding: [3, 6, 3, 6] };
                     if (currentStage) {
                         currentStage.children.push(node);
                         currentSubStage = node;
                     } else {
-                        root.children.push(node); 
+                        root.children.push(node);
                     }
-                } 
+                }
                 else if (type === 'SubSubStage') {
                     node.symbolSize = 8;
                     node.itemStyle = { color: '#94a3b8' };
-                    const pri = parseInt(node.tadof) || 0;
-                    if (pri >= 1 && pri <= 6) {
-                        const priColor = pri <= 2 ? '#f87171' : pri <= 4 ? '#fbbf24' : '#fde68a';
-                        const priText = pri <= 2 ? '#fff' : '#713f12';
-                        node.label = {
-                            fontSize: 13, color: '#94a3b8',
-                            rich: {
-                                pri: {
-                                    backgroundColor: priColor,
-                                    color: priText,
-                                    borderRadius: 10,
-                                    padding: [2, 5, 2, 5],
-                                    fontSize: 10,
-                                    fontWeight: 'bold',
-                                    fontFamily: 'Heebo'
-                                }
-                            }
-                        };
-                    } else {
-                        node.label = { fontSize: 13, color: '#94a3b8' };
-                    }
+                    node.label = { fontSize: 13, color: priTextColor || '#94a3b8', backgroundColor: priBg || 'transparent', borderRadius: 4, padding: [2, 5, 2, 5] };
                     if (currentSubStage) {
                         currentSubStage.children.push(node);
                     } else if (currentStage) {
