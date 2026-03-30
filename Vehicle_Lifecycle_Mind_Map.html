@@ -565,13 +565,12 @@
                 };
 
                 const pri = parseInt(node.tadof) || 0;
-                const priBg = pri >= 1 && pri <= 2 ? '#7f1d1d' : pri >= 3 && pri <= 4 ? '#78350f' : pri >= 5 && pri <= 6 ? '#713f12' : null;
                 const priTextColor = pri >= 1 && pri <= 2 ? '#fca5a5' : pri >= 3 && pri <= 4 ? '#fcd34d' : pri >= 5 && pri <= 6 ? '#fde68a' : null;
 
                 if (type === 'Stage') {
                     node.symbolSize = 16;
                     node.itemStyle = { color: '#2563eb' };
-                    node.label = { fontWeight: '700', fontSize: 15, color: priTextColor || '#93bbfd', backgroundColor: priBg || 'transparent', borderRadius: 4, padding: [4, 8, 4, 8] };
+                    node.label = { fontWeight: '700', fontSize: 15, color: priTextColor || '#93bbfd' };
                     root.children.push(node);
                     currentStage = node;
                     currentSubStage = null;
@@ -579,7 +578,7 @@
                 else if (type === 'SubStage') {
                     node.symbolSize = 12;
                     node.itemStyle = { color: '#0ea5e9' };
-                    node.label = { fontWeight: '500', fontSize: 14, color: priTextColor || '#7dd3fc', backgroundColor: priBg || 'transparent', borderRadius: 4, padding: [3, 6, 3, 6] };
+                    node.label = { fontWeight: '500', fontSize: 14, color: priTextColor || '#7dd3fc' };
                     if (currentStage) {
                         currentStage.children.push(node);
                         currentSubStage = node;
@@ -590,7 +589,7 @@
                 else if (type === 'SubSubStage') {
                     node.symbolSize = 8;
                     node.itemStyle = { color: '#94a3b8' };
-                    node.label = { fontSize: 13, color: priTextColor || '#94a3b8', backgroundColor: priBg || 'transparent', borderRadius: 4, padding: [2, 5, 2, 5] };
+                    node.label = { fontSize: 13, color: priTextColor || '#94a3b8' };
                     if (currentSubStage) {
                         currentSubStage.children.push(node);
                     } else if (currentStage) {
